@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <title>@yield('title') – Panel Admin</title>
 <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+<script>(function(){try{var t=localStorage.getItem('tdp_theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}})()</script>
 </head>
 <body>
 <div class="app">
@@ -19,6 +20,7 @@
     </section>
   </main>
 </div>
+<script src="{{ asset('js/theme.js') }}"></script>
 <script src="{{ asset('js/admin.js') }}"></script>
 </body>
 </html>

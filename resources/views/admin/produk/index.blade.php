@@ -13,7 +13,7 @@
         <td><b>Rp {{ number_format($p->harga, 0, ',', '.') }}</b></td>
         <td><span class="pill {{ $p->aktif ? 'aktif' : 'habis' }}">{{ $p->status_produk }}</span></td>
         <td style="white-space:nowrap"><a class="btn" href="{{ route('admin.produk.edit', $p) }}">Ubah</a>
-          <form method="POST" action="{{ route('admin.produk.destroy', $p) }}" style="display:inline" data-konfirmasi="Hapus produk {{ $p->nama_produk }}?">@csrf @method('DELETE')<button class="btn del" type="submit">Hapus</button></form></td>
+          <form method="POST" action="{{ route('admin.produk.destroy', $p) }}" style="display:inline" onsubmit="return confirm('Hapus produk {{ $p->nama_produk }}?')">@csrf @method('DELETE')<button class="btn del" type="submit">Hapus</button></form></td>
       </tr>
     @empty<tr><td colspan="6" class="note">Belum ada produk.</td></tr>@endforelse
     </tbody>

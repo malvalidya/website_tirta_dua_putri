@@ -11,9 +11,10 @@
 
   const KB = [
     { k: ['jam', 'buka', 'tutup', 'operasional'], a: () => `Jam operasional kami: ${D.jam || 'silakan tanya admin'}.` },
-    { k: ['alamat', 'lokasi', 'dimana', 'di mana', 'maps', 'peta'], a: () => `Lokasi depo: ${D.alamatDepo || 'belum diisi'}.\nPeta lengkap ada di menu Info usaha.` },
-    { k: ['harga', 'produk', 'menu', 'galon', 'isi ulang', 'langganan', 'paket'], a: () => aktif().length ? `Produk yang tersedia:\n${aktif().map(p => `• ${p.nama}: ${rp(p.harga)}`).join('\n')}` : 'Daftar produk belum tersedia.' },
-    { k: ['cara pesan', 'pesan', 'order', 'beli', 'checkout', 'gimana', 'bagaimana'], a: () => '1. Pilih produk di Beranda lalu tekan tombol +.\n2. Tekan Lihat keranjang di bagian bawah halaman, atur jumlah, lalu pilih Ambil di tempat atau Diantar.\n3. Isi data dan pilih pembayaran.\n4. Tekan Kirim lewat WhatsApp, lalu kirim pesannya ke admin.' },
+    { k: ['alamat', 'lokasi', 'dimana', 'di mana', 'tempat', 'maps', 'peta'], a: () => `Lokasi depo: ${D.alamatDepo || 'belum diisi'}.\nPeta lengkap ada di menu Info usaha.` },
+    { k: ['promo', 'diskon', 'potongan', 'voucher', 'kode promo', 'hemat'], a: () => D.promo ? `Promo saat ini: ${D.promo.judul}.${D.promo.diskon ? '\n' + D.promo.diskon : ''}${D.promo.kode ? '\nKode promo: ' + D.promo.kode : ''}${D.promo.sampai ? '\nBerlaku sampai ' + D.promo.sampai : ''}` : 'Saat ini belum ada promo. Pantau terus halaman utama ya.' },
+    { k: ['harga', 'produk', 'daftar', 'menu', 'galon', 'isi ulang', 'langganan', 'paket'], a: () => aktif().length ? `Produk yang tersedia:\n${aktif().map(p => `• ${p.nama}: ${rp(p.harga)}`).join('\n')}` : 'Daftar produk belum tersedia.' },
+    { k: ['cara pesan', 'pesan', 'order', 'beli', 'checkout', 'gimana', 'bagaimana'], a: () => '1. Pilih produk di Beranda lalu tekan tombol +.\n2. Buka Keranjang, atur jumlah, dan pilih Ambil di tempat atau Diantar.\n3. Isi data dan pilih pembayaran.\n4. Tekan Kirim lewat WhatsApp, lalu kirim pesannya ke admin.' },
     { k: ['ongkir', 'ongkos', 'biaya kirim', 'antar', 'kirim', 'delivery', 'diantar'], a: () => `Jika diantar ke alamat, ongkos kirim rata ${ongkir}. Jika ambil di tempat, tidak ada biaya tambahan.` },
     { k: ['ambil', 'ditempat', 'di tempat', 'datang', 'langsung'], a: () => `Anda bisa ambil di tempat tanpa biaya tambahan.${D.alamatDepo ? '\nAlamat: ' + D.alamatDepo : ''}` },
     { k: ['bayar', 'pembayaran', 'tunai', 'nontunai', 'transfer', 'qris', 'ewallet', 'cash'], a: () => 'Pembayaran bisa Tunai (dibayar saat air diterima atau diambil) atau Nontunai (rincian pembayaran dikirim admin lewat WhatsApp).' },
@@ -48,7 +49,7 @@
     return `<br><a class="chat-wa" target="_blank" rel="noopener" href="${wa('Halo admin ' + D.namaUsaha + ', saya butuh bantuan' + (konteks ? ': ' + konteks : '.'))}"><i class="fa-brands fa-whatsapp"></i> Chat admin</a>`;
   }
   function tanya(teks) {
-    teks = teks.trim().slice(0, 200); if (!teks) return;
+    teks = teks.trim(); if (!teks) return;
     bubble('me', safe(teks));
     const t = bubble('bot typing', '<i></i><i></i><i></i>');
     setTimeout(() => { t.remove(); const r = jawab(teks); bubble('bot', safe(r.t) + (r.admin ? adminLink(teks) : '')); }, 450);
@@ -65,10 +66,9 @@
   function buka(v) {
     panel.classList.toggle('open', v); fab.setAttribute('aria-expanded', v);
     if (v && !sapa) { sapa = true; bubble('bot', 'Halo! Aku asisten ' + safe(D.namaUsaha || 'depo') + '. Ada yang bisa dibantu? Pilih topik di bawah atau ketik pertanyaan Anda.'); }
-    // fokus otomatis hanya di perangkat dengan mouse; di HP keyboard tidak langsung menutupi chat
-    if (v && window.matchMedia('(pointer:fine)').matches) setTimeout(() => $('#chatIn').focus(), 300);
+    if (v) setTimeout(() => $('#chatIn').focus(), 300);
   }
   fab.onclick = () => buka(!panel.classList.contains('open'));
   $('#chatX').onclick = () => buka(false);
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && panel.classList.contains('open')) buka(false); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') buka(false); });
 })();

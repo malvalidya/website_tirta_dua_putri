@@ -5,7 +5,7 @@
 <div class="grid g3 sec">
   <div class="card stat a"><div><small>Pendapatan bulan ini</small><b>{{ $rp($pendapatan) }}</b></div><p>dari total harga pesanan selesai</p></div>
   <div class="card stat b"><div><small>Pesanan selesai bulan ini</small><b>{{ $selesaiBulan }}</b></div><p>{{ $totalPesanan }} pesanan seluruhnya</p></div>
-  <div class="card stat c"><div><small>Produk aktif</small><b>{{ $produkAktif }} / {{ $produkTotal }}</b></div><p>dari daftar produk</p></div>
+  <a class="card stat c" href="{{ route('admin.pesanan.index') }}" style="text-decoration:none"><div><small>Menunggu konfirmasi</small><b>{{ $menunggu }}</b></div><p>{{ $produkAktif }} dari {{ $produkTotal }} produk aktif</p></a>
 </div>
 <div class="grid g2 sec">
   <div class="card"><h2>Pesanan selesai 7 hari terakhir</h2>
@@ -27,8 +27,8 @@
   </div>
   <div class="card"><h2>Produk terlaris</h2>
     @forelse($terlaris as $d)
-      <div class="row"><div class="thumb"><i class="fa-solid {{ $d->produk?->ikon ?? 'fa-droplet' }}"></i></div>
-        <div class="t"><b>{{ $d->produk?->nama_produk ?? 'Produk dihapus' }}</b><small>{{ $d->terjual }} terjual</small></div><b>{{ $rp($d->omzet) }}</b></div>
+      <div class="row"><div class="thumb"><i class="fa-solid {{ $d->produk->ikon }}"></i></div>
+        <div class="t"><b>{{ $d->produk->nama_produk }}</b><small>{{ $d->terjual }} terjual</small></div><b>{{ $rp($d->omzet) }}</b></div>
     @empty<p class="note">Belum ada data penjualan.</p>@endforelse
   </div>
 </div>

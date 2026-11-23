@@ -14,7 +14,8 @@ class PesananDemoSeeder extends Seeder {
                 'nama_pelanggan' => $n, 'no_hp' => '08123456' . str_pad($i, 4, '0', STR_PAD_LEFT),
                 'alamat' => 'Jl. Contoh No. ' . ($i + 1) . ', Malang',
                 'metode_bayar' => $i % 2 ? 'Nontunai' : 'Tunai', 'total_harga' => 0,
-                'tanggal_selesai' => now()->subDays($i)->toDateString(),
+                'status' => $i < 3 ? 'Fix' : 'Belum fix', // 2 pesanan terakhir menunggu konfirmasi
+                'tanggal_selesai' => $i < 3 ? now()->subDays($i)->toDateString() : null,
             ]);
             $total = 0;
             foreach ($p->values() as $k => $prod) {

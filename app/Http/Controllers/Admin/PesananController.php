@@ -6,23 +6,46 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class PesananController extends Controller {
-    public function index(Request $r) {
-        $q = Pesanan::with('detail.produk')->orderByDesc('tanggal_selesai')->orderByDesc('id_pesanan');
-        if (in_array($r->query('metode'), ['Tunai', 'Nontunai'])) $q->where('metode_bayar', $r->query('metode'));
-        if (is_string($s = $r->query('q')) && trim($s) !== '') {
-            $s = '%' . addcslashes(trim($s), '%_\\') . '%';
-            $q->where(fn ($w) => $w->where('kode_pesanan', 'like', $s)->orWhere('nama_pelanggan', 'like', $s));
-        }
-        return view('admin.pesanan.index', ['pesanan' => $q->paginate(10)->withQueryString()]);
+    /** Pesanan masuk yang belum diverifikasi (terlama di atas). */
+    public function index() {
+        return view('admin.pesanan.index', [
+            'pesanan' => Pesanan::belumFix()->with('detail.produk')->orderBy('dibuat_pada')->orderBy('id_pesanan')->paginate(15),
+        ]);
     }
 
+    /** Riwayat pesanan yang sudah fix/selesai. */
+    public function fix(Request $r) {
+        $q = Pesanan::fix()->with('detail.produk')->orderByDesc('tanggal_selesai')->orderByDesc('id_pesanan');
+        if (in_array($r->query('metode'), ['Tunai', 'Nontunai'])) $q->where('metode_bayar', $r->query('metode'));
+        if ($s = $r->query('q')) {
+            $q->where(fn ($w) => $w->where('kode_pesanan', 'like', "%$s%")->orWhere('nama_pelanggan', 'like', "%$s%"));
+        }
+        return view('admin.pesanan.fix', ['pesanan' => $q->paginate(10)->withQueryString()]);
+    }
+
+    /** Admin sudah memverifikasi, pesanan diantar/diambil dan dibayar: pindah ke Fix. */
+    public function selesai(Pesanan $pesanan) {
+        if ($pesanan->status === 'Belum fix') {
+            $pesanan->update(['status' => 'Fix', 'tanggal_selesai' => now()->toDateString()]);
+        }
+        return redirect()->route('admin.pesanan.index')->with('sukses', "Pesanan {$pesanan->kode_pesanan} dipindahkan ke Pesanan fix.");
+    }
+
+    /** Tolak pesanan palsu/iseng (hanya yang belum fix). */
+    public function destroy(Pesanan $pesanan) {
+        if ($pesanan->status !== 'Belum fix') return back()->with('gagal', 'Pesanan yang sudah fix tidak bisa dihapus.');
+        $kode = $pesanan->kode_pesanan;
+        $pesanan->delete(); // detail_pesanan ikut terhapus (cascade)
+        return redirect()->route('admin.pesanan.index')->with('sukses', "Pesanan $kode ditolak dan dihapus.");
+    }
+
+    /** Catat manual (mis. pembeli datang langsung): langsung berstatus Fix. */
     public function create() {
         return view('admin.pesanan.create', [
             'produk' => Produk::where('status_produk', 'Aktif')->orderBy('nama_produk')->get(),
             'kode'   => Pesanan::kodeBerikutnya(),
         ]);
     }
-
     public function store(Request $r) {
         $data = $r->validate([
             'nama_pelanggan'   => 'required|string|max:255',
@@ -42,16 +65,12 @@ class PesananController extends Controller {
                 'harga_satuan' => $harga[$i['id_produk']], 'subtotal' => $harga[$i['id_produk']] * (int) $i['jumlah'],
             ]);
             $pesanan = Pesanan::create([
-                'kode_pesanan'    => Pesanan::kodeBerikutnya(),
-                'nama_pelanggan'  => $data['nama_pelanggan'],
-                'no_hp'           => $data['no_hp'],
-                'alamat'          => $data['alamat'],
-                'metode_bayar'    => $data['metode_bayar'],
-                'total_harga'     => $baris->sum('subtotal'),
-                'tanggal_selesai' => $data['tanggal_selesai'],
+                'kode_pesanan' => Pesanan::kodeBerikutnya(), 'nama_pelanggan' => $data['nama_pelanggan'], 'no_hp' => $data['no_hp'],
+                'alamat' => $data['alamat'], 'metode_bayar' => $data['metode_bayar'], 'total_harga' => $baris->sum('subtotal'),
+                'status' => 'Fix', 'tanggal_selesai' => $data['tanggal_selesai'],
             ]);
             $pesanan->detail()->createMany($baris->all());
         });
-        return redirect()->route('admin.pesanan.index')->with('sukses', 'Transaksi dicatat.');
+        return redirect()->route('admin.pesanan.fix')->with('sukses', 'Transaksi dicatat.');
     }
 }

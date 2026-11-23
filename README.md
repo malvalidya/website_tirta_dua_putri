@@ -39,11 +39,8 @@ Untuk **Laravel 11 atau 12**. Struktur folder sama dengan project Laravel, jadi 
   Jika database sudah terisi, jalankan di MySQL:
   `UPDATE produk SET nama_produk='Ongkos Kirim', kategori='Biaya', deskripsi='Biaya pengantaran ke alamat pelanggan (hanya untuk pencatatan admin).', harga=5000 WHERE nama_produk='Antar ke Rumah';`
 
-## Pembaruan 3 (tampilan & perbaikan bug)
-- **Keranjang bawah = footer.** Bar keranjang mengambang diganti footer yang selalu menempel di bawah layar (jumlah item, total, tombol *Lihat keranjang*). Tombol keranjang di navbar atas dihapus. File `partials/customer/cartbar.blade.php` dihapus; footer lama digabung ke `partials/customer/footer.blade.php`.
-- Navbar di HP kini tetap menampilkan menu *Beranda* dan *Info usaha* (sebelumnya hanya tombol keranjang yang tersisa).
-- `public/css/customer.css` ditulis ulang dan dirapikan: latar gelembung memakai `transform` (lebih ringan di HP), tanpa `background-attachment: fixed` (bermasalah di iOS), `100dvh`, area aman (notch), font input 16px di HP agar tidak zoom sendiri, baris keranjang tidak lagi meluber di layar sempit, daftar saran alamat melayang di atas peta.
-- HTML valid: tombol tidak lagi bersarang di dalam tautan (`<a><button>`), elemen `<main>`, atribut ARIA, kartu produk bisa dibuka dengan keyboard.
-- `public/js/customer.js`: data keranjang rusak di localStorage tidak lagi membuat halaman error, jumlah dibatasi 1–99, keranjang sinkron antar tab, **nomor HP kini ikut terkirim di pesan WhatsApp**, pencarian alamat tidak lagi menampilkan hasil lama (race condition), peta tidak membajak scroll halaman, peringatan jika nomor WhatsApp depo belum diatur.
-- `public/js/chatbot.js`: jawaban *Cara pesan* disesuaikan dengan footer keranjang, tumpang tindih kata kunci diperbaiki, keyboard HP tidak otomatis muncul saat chat dibuka.
-- Admin: konfirmasi hapus produk aman untuk nama yang memuat tanda kutip, baris produk di *Catat transaksi* tidak hilang saat validasi gagal, pencarian pesanan tidak menganggap `%` dan `_` sebagai wildcard, halaman tidak error jika produk di riwayat sudah terhapus, tampilan admin lebih rapi di HP.
+## Pembaruan 3: pesanan Belum fix / Fix
+- Pesanan dari website disimpan dulu sebagai **Belum fix**. Admin memverifikasi lewat WhatsApp, lalu tekan **Selesai** untuk memindahkannya ke **Pesanan fix**, atau **Tolak** untuk pesanan palsu.
+- Pencegahan iseng: harga dihitung ulang di server, batas 6 pesanan per 10 menit per IP, maksimal 3 pesanan menggantung per nomor HP, dan kolom jebakan bot.
+- Dashboard hanya menghitung pesanan Fix.
+- Wajib jalankan `php artisan migrate` (ada migration baru: tambah kolom `status`, `pengambilan`, `ongkir`, dll di tabel `pesanan`; data lama otomatis jadi Fix).

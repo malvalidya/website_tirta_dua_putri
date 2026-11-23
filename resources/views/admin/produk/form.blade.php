@@ -10,7 +10,7 @@
     <div class="full"><label for="d">Deskripsi</label><textarea id="d" name="deskripsi">{{ old('deskripsi', $produk->deskripsi) }}</textarea></div>
     <div><label for="h">Harga (Rp)</label><input id="h" type="number" min="0" name="harga" value="{{ old('harga', $produk->harga) }}" required></div>
     <div><label for="s">Status produk</label>
-      <select id="s" name="status_produk">@foreach(['Aktif','Habis'] as $s)<option value="{{ $s }}" @selected(old('status_produk', $produk->status_produk) == $s)>{{ $s }}</option>@endforeach</select></div>
+      <select id="s" name="status_produk">@foreach(['Aktif','Habis'] as $s)<option @selected(old('status_produk', $produk->status_produk) == $s)>{{ $s }}</option>@endforeach</select></div>
     <div class="full"><label for="f">Foto (URL, opsional)</label><input id="f" name="foto_url" value="{{ old('foto_url', $produk->foto_url) }}" placeholder="https://…"></div>
     <div class="full"><button class="btn fill" type="submit">Simpan produk</button> <a class="btn" href="{{ route('admin.produk.index') }}">Batal</a></div>
   </div>
